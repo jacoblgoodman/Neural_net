@@ -2,14 +2,15 @@ import numpy as np
 
 
 class NeuralNetwork:
-    def __init__(self, num_Inputs,  num_HiddenNodes, num_Outputs, alpha=.2, errorfunc='square_error', activation='sigmoid'):
+    def __init__(self, num_Inputs,  num_HiddenNodes, num_Outputs,
+                 alpha=.2, errorfunc='square_error', activation='sigmoid'):
         """
         initalization of our obeject
         """
         self._num_Inputs = num_Inputs
         self._num_Outputs = num_Outputs
         self._num_HiddenNodes = num_HiddenNodes
-        self.alpha = alpha
+        self._alpha = alpha
 
         if errorfunc == 'square_error':
             self.errorfunc = NeuralNetwork.square_error
@@ -46,15 +47,16 @@ class NeuralNetwork:
         """our default activation function"""
         return 1/(1+np.e**(-x))
 
-    def predict(self, inp, w=None, W=None, func=None, y=None):
+    def predict(self, inp,y=None, w=None, W=None, func=None, ):
         """this function takes in inputs, weight matrix, and an activation function and makes a predication """
         if func is None:
             func = self.Actfunc
         if w is None:
             w = self.w
-        if W is none:
-            W - self.W
-        x = np.append(x,1)
+        if W is None:
+            W = self.W
+
+        x = np.append(inp, 1)
         pred = func(np.append(func(x.dot(w)),1).dot(W))
 
         if y is None:
@@ -99,8 +101,8 @@ class NeuralNetwork:
 
         # second step loop
         for k in range(self._num_HiddenNodes):
-            bias = Bo.dot(self.W[k,:])*Der_sigmoid(Thid[k])
-            for j in range(num_inputs):
+            bias = Bo.dot(self.W[k,:])*self.Der_Actfunc(Thid[k])
+            for j in range(self._num_Inputs):
                 g[j, k] = bias*x[j]
             Bh += bias  # updating all bias because we aren't using these values again
 
@@ -109,7 +111,7 @@ class NeuralNetwork:
         G = np.append(G,Bo,axis=0)
         g = np.append(g,Bh,axis=0)
 
-        self.W = self.W-self.alpha*G
-        self.w = self.w-self.alpha*g
+        self.W = self.W-self._alpha*G
+        self.w = self.w-self._alpha*g
 
         return print('one epoch')
