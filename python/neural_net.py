@@ -26,15 +26,24 @@ class NeuralNetwork:
         rng = np.random.default_rng()
 
         # matrix set up
-        w = rng.integers(-5, 5, size=self._num_HiddenNodes * self._num_Inputs)
+        w = rng.uniform(-.5, .51, size=self._num_HiddenNodes * self._num_Inputs)  # .51 duo to inclusive nature of uniform
         w = w.reshape((self._num_Inputs, self._num_HiddenNodes))
 
-        W = rng.integers(-5, 5, size=self._num_HiddenNodes * self._num_Outputs)
+        W = rng.uniform(-.5, .51, size=self._num_HiddenNodes * self._num_Outputs)
         W = W.reshape((self._num_HiddenNodes,self._num_Outputs))
 
         # bias set up
-        self.w = np.append(w, np.full((1, self._num_HiddenNodes), rng.integers(-5, 5, 1)), axis=0)
-        self.W = np.append(W, np.full((1, self._num_Outputs), rng.integers(-5, 5, 1)), axis=0)
+        w = np.append(w, np.full((1, self._num_HiddenNodes), rng.uniform(-.5, .51, 1)), axis=0)
+        W = np.append(W, np.full((1, self._num_Outputs), rng.uniform(-.5, .51, 1)), axis=0)
+
+        # replacing any zero values
+        w[w == 0] = rng.uniform(-.5, .51, 1)
+        W[W == 0] = rng.uniform(-.5, .51, 1)
+
+        # assigning to object
+
+        self.w = w
+        self.W = W
 
     @staticmethod
     def square_error(pred, actual):
@@ -114,4 +123,4 @@ class NeuralNetwork:
         self.W = self.W-self._alpha*G
         self.w = self.w-self._alpha*g
 
-        return print('one epoch')
+        return print('one pass')

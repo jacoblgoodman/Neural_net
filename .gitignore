@@ -1,3 +1,8 @@
 # "git ignore" 
 
+# IDE files 
 *.ipynb_checkpoints
+*idea
+
+
+__pycache__/
