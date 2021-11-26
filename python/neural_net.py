@@ -5,7 +5,7 @@ class NeuralNetwork:
     def __init__(self, num_Inputs,  num_HiddenNodes, num_Outputs,
                  alpha=.2, errorfunc='square_error', activation='sigmoid'):
         """
-        initalization of our obeject
+        initialization of our object
         """
         self._num_Inputs = num_Inputs
         self._num_Outputs = num_Outputs
@@ -16,7 +16,11 @@ class NeuralNetwork:
             self.errorfunc = NeuralNetwork.square_error
             self.Der_errorfunc = NeuralNetwork.Der_square_error
 
-        if activation == 'sigmoid':
+        if activation != 'sigmoid':
+            self.Actfunc = getattr(NeuralNetwork,f'act_{activation}')
+            self.Der_Actfunc = getattr(NeuralNetwork,f'der_{activation}')
+
+        else:
             self.Actfunc = NeuralNetwork.sigmoid
             self.Der_Actfunc = NeuralNetwork.Der_sigmoid
 
@@ -50,11 +54,11 @@ class NeuralNetwork:
         """default error function of our nueralnetwork given predicated value and actual returns error"""
         return  (sum(actual - pred)**2)*.5
 
-
     @staticmethod
-    def sigmoid(x):
-        """our default activation function"""
-        return 1/(1+np.e**(-x))
+    def Der_square_error(pred, target):
+        """ derivative or our default error function"""
+        return pred-target
+
 
     def predict(self, inp,y=None, w=None, W=None, func=None, ):
         """this function takes in inputs, weight matrix, and an activation function and makes a predication """
@@ -77,13 +81,7 @@ class NeuralNetwork:
         x = np.append(inp, 1)
         return self.Actfunc(x.dot(self.w))
 
-    @staticmethod
-    def Der_square_error(pred, target):
-        """ derivative or our default error function"""
-        return pred-target
-    @staticmethod
-    def Der_sigmoid(val):
-        return val *(1-val)
+
 
     def train(self,x, y):
         # initalize
@@ -124,3 +122,34 @@ class NeuralNetwork:
         self.w = self.w-self._alpha*g
 
         return print('one pass')
+
+
+    # activation functions
+
+    @staticmethod
+    def der_relu(x:float):
+        if x >= 0:
+            return 1
+        else:
+            return 0
+
+    @staticmethod
+    def act_relu(x:float):
+        return max(0, x)
+
+    @staticmethod
+    def Der_sigmoid(x):
+        return x *(1-x)
+
+    @staticmethod
+    def sigmoid(x):
+        """our default activation function"""
+        return 1/(1+np.e**(-x))
+
+    @staticmethod
+    def der_hyperbolic(x):
+        return 4/(np.e**x+np.e**-x)**2
+
+    @staticmethod
+    def act_hyperbolic(x):
+        return (np.e**x-np.e**-x)/(np.e**x+np.e**-x)
