@@ -127,15 +127,12 @@ class NeuralNetwork:
     # activation functions
 
     @staticmethod
-    def der_relu(x:float):
-        if x >= 0:
-            return 1
-        else:
-            return 0
+    def der_relu(x):
+        return np.where(x < 0, 0, 1)
 
     @staticmethod
-    def act_relu(x:float):
-        return max(0, x)
+    def act_relu(x):
+        return np.maximum(x, 0)
 
     @staticmethod
     def Der_sigmoid(x):
