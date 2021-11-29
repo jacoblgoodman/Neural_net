@@ -60,7 +60,7 @@ class NeuralNetwork:
         return pred-target
 
 
-    def predict(self, inp,y=None, w=None, W=None, func=None, ):
+    def predict(self, inp, y=None, w=None, W=None, func=None, ):
         """this function takes in inputs, weight matrix, and an activation function and makes a predication """
         if func is None:
             func = self.Actfunc
@@ -70,7 +70,7 @@ class NeuralNetwork:
             W = self.W
 
         x = np.append(inp, 1)
-        pred = func(np.append(func(x.dot(w)),1).dot(W))
+        pred = func(np.append(func(x.dot(w)), 1).dot(W))
 
         if y is None:
             return pred
@@ -83,7 +83,7 @@ class NeuralNetwork:
 
 
 
-    def train(self,x, y):
+    def get_gradients(self, x, y, batch=False):
         # initalize
         G = np.zeros((self._num_HiddenNodes, self._num_Outputs))
         g = np.zeros((self._num_Inputs, self._num_HiddenNodes))
@@ -118,10 +118,31 @@ class NeuralNetwork:
         G = np.append(G,Bo,axis=0)
         g = np.append(g,Bh,axis=0)
 
-        self.W = self.W-self._alpha*G
-        self.w = self.w-self._alpha*g
+        if batch is True:
+            return g, G
 
-        return print('one pass')
+        elif batch is False:
+            self.W = self.W-self._alpha*G
+            self.w = self.w-self._alpha*g
+            print("one pass")
+            return
+        else:
+            print('bad options for batch should be True/False')
+
+    def train(self, X, Y, batchsize=1):
+        """Primary training method of our neural network"""
+        # if input is length of number of inputs assume single input
+        if X.size == self._num_Inputs:
+            status = self.get_gradients(X, Y)
+            return
+        # if batch size is 1 loop over array
+        elif batchsize == 1:
+            for x, y in zip(X, Y):
+                self.get_gradients(x, y)
+            print("one epoch")
+            return
+        else:
+            print("batch size greater than 1 not yet implemented")
 
 
     # activation functions
