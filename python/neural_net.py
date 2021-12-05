@@ -129,7 +129,7 @@ class NeuralNetwork:
         else:
             print('bad options for batch should be True/False')
 
-    def train(self, X, Y, batchsize=1):
+    def train(self, X, Y, batchsize=1, numbatches= None):
         """Primary training method of our neural network"""
         # if input is length of number of inputs assume single input
         if X.size == self._num_Inputs:
@@ -142,8 +142,41 @@ class NeuralNetwork:
             print("one epoch")
             return
         else:
-            print("batch size greater than 1 not yet implemented")
+            import math
+            if numbatches is not None:
+                for x, y  in zip(np.array_split(X,numbatches),  np.array_split(Y,numbatches)):
+                    numrecords = 0
+                    weight1 = []
+                    weight2 = []
+                    for record, target in zip(x, y):
+                        g, G = self.get_gradients(record, target,batch=True)
+                        numrecords += 1
+                        weight1.append(g)
+                        weight2.append(G)
 
+                    g = sum(weight1)/numrecords
+                    G = sum(weight2)/numrecords
+                    self.W = self.W-self._alpha*G
+                    self.w = self.w-self._alpha*g
+                    print("one batch")
+            else:
+                batches = math.ceil(len(X)/batchsize)
+                for x, y  in zip(np.array_split(X,batches),  np.array_split(Y,batches)):
+                    #initialize
+                    numrecords = 0
+                    weight1 = []
+                    weight2 = []
+                    for record, target in zip(x, y):
+                        g, G = self.get_gradients(record, target,batch=True)
+                        numrecords += 1
+                        weight1.append(g)
+                        weight2.append(G)
+
+                    g = sum(weight1)/numrecords
+                    G = sum(weight2)/numrecords
+                    self.W = self.W-self._alpha*G
+                    self.w = self.w-self._alpha*g
+                    print("one batch")
 
     # activation functions
 
