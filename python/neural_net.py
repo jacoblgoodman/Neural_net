@@ -1,4 +1,5 @@
 import numpy as np
+from sympy import log
 
 
 class NeuralNetwork:
@@ -33,8 +34,10 @@ class NeuralNetwork:
         w = rng.uniform(-.5, .51, size=self._num_HiddenNodes * self._num_Inputs)  # .51 duo to inclusive nature of uniform
         w = w.reshape((self._num_Inputs, self._num_HiddenNodes))
 
+
         W = rng.uniform(-.5, .51, size=self._num_HiddenNodes * self._num_Outputs)
         W = W.reshape((self._num_HiddenNodes,self._num_Outputs))
+
 
         # bias set up
         w = np.append(w, np.full((1, self._num_HiddenNodes), rng.uniform(-.5, .51, 1)), axis=0)
@@ -44,6 +47,9 @@ class NeuralNetwork:
         w[w == 0] = rng.uniform(-.5, .51, 1)
         W[W == 0] = rng.uniform(-.5, .51, 1)
 
+        # setting dtype
+        w = w.astype(np.longdouble)
+        W = W.astype(np.longdouble)
         # assigning to object
 
         self.w = w
@@ -52,7 +58,7 @@ class NeuralNetwork:
     @staticmethod
     def square_error(pred, actual):
         """default error function of our nueralnetwork given predicated value and actual returns error"""
-        return  (sum(actual - pred)**2)*.5
+        return (sum(actual - pred)**2)*.5
 
     @staticmethod
     def Der_square_error(pred, target):
@@ -60,7 +66,7 @@ class NeuralNetwork:
         return pred-target
 
 
-    def predict(self, inp, y=None, w=None, W=None, func=None, ):
+    def predict(self, inp, y=None, w=None, W=None, func=None):
         """this function takes in inputs, weight matrix, and an activation function and makes a predication """
         if func is None:
             func = self.Actfunc
@@ -69,26 +75,36 @@ class NeuralNetwork:
         if W is None:
             W = self.W
 
-        x = np.append(inp, 1)
-        pred = func(np.append(func(x.dot(w)), 1).dot(W))
+        x = self.make_ones(inp)
+
+        # forward propagating
+        pred = func(self.make_ones(func(x.dot(w))).dot(W))
 
         if y is None:
             return pred
         else:
             return self.errorfunc(pred,y)
 
+    def make_ones(self, inp):
+        # appending 1's for bias
+        if inp.ndim == 1:
+            x = np.append(inp, 1)
+        elif inp.ndim > 1:
+            x = np.c_[inp, np.ones(inp.shape[0])]
+        return x
+
     def hiddennodes(self,inp):
-        x = np.append(inp, 1)
+        x = np.append(inp, 1).astype(np.longdouble)
         return self.Actfunc(x.dot(self.w))
 
 
 
     def get_gradients(self, x, y, batch=False):
         # initalize
-        G = np.zeros((self._num_HiddenNodes, self._num_Outputs))
-        g = np.zeros((self._num_Inputs, self._num_HiddenNodes))
-        Bo = np.zeros((1,self._num_Outputs))
-        Bh = np.zeros((1,self._num_HiddenNodes))
+        G = np.zeros((self._num_HiddenNodes, self._num_Outputs), dtype=np.longdouble)
+        g = np.zeros((self._num_Inputs, self._num_HiddenNodes), dtype=np.longdouble)
+        Bo = np.zeros((1, self._num_Outputs), dtype=np.longdouble)
+        Bh = np.zeros((1, self._num_HiddenNodes), dtype=np.longdouble)
 
         # create predictions
         cur_pred = self.predict(x)
@@ -97,10 +113,13 @@ class NeuralNetwork:
         # first step loop
         for k in range(self._num_Outputs):
             # calculate for an output node
-            Bias = self.Der_errorfunc(cur_pred[k],y[k])*self.Der_Actfunc(cur_pred[k])
+            Bias = np.multiply(self.Der_errorfunc(cur_pred[k],y[k]),self.Der_Actfunc(cur_pred[k]))
+
+
             for j in range(self._num_HiddenNodes):
+
                 # add for hidden node
-                G[j, k] = Bias*Thid[j]
+                 G[j, k] = Bias * Thid[j]
 
             # update bias vector
             Bo[0, k] = Bias     # note this will be summed before utlized in updates but information stored
@@ -122,8 +141,9 @@ class NeuralNetwork:
             return g, G
 
         elif batch is False:
-            self.W = self.W-self._alpha*G
-            self.w = self.w-self._alpha*g
+            self.W = np.nan_to_num(self.W-(self._alpha*G))
+            self.w = np.nan_to_num(self.w-(self._alpha*g))
+
             print("one pass")
             return
         else:
@@ -182,7 +202,7 @@ class NeuralNetwork:
 
     @staticmethod
     def der_relu(x):
-        return np.where(x < 0, 0, 1)
+        return np.where(x < 0, 0, 1).astype(np.longdouble)
 
     @staticmethod
     def act_relu(x):
@@ -195,7 +215,7 @@ class NeuralNetwork:
     @staticmethod
     def sigmoid(x):
         """our default activation function"""
-        return 1/(1+np.e**(-x))
+        return 1/(1+np.exp(-x))
 
     @staticmethod
     def der_hyperbolic(x):
