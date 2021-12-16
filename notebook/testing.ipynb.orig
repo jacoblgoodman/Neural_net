@@ -1,0 +1,548 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import sys\n",
+    "import numpy as np\n",
+    "\n",
+    "#https://stackoverflow.com/questions/34478398/import-local-function-from-a-module-housed-in-another-directory-with-relative-im/44486700\n",
+    "module_path= os.path.abspath(os.path.join('..',\"python\"))\n",
+    "\n",
+    "if module_path not in sys.path:\n",
+    "    sys.path.append(module_path)\n",
+    "\n",
+    "from neural_net import NeuralNetwork"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## subsantiating a model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "jupyter": {
+     "outputs_hidden": false
+    },
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "model =NeuralNetwork(3,3,2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## verifying weights"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[ 0.46995009,  0.47661695],\n",
+       "       [-0.44155094,  0.39688665],\n",
+       "       [-0.44415212, -0.02423696],\n",
+       "       [-0.03868279, -0.03868279]])"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "model.W"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## testing predict function on  known information\n",
+    "\n",
+    "**Steps**\n",
+    "1. update weights to known point\n",
+    "2. predict using input\n",
+    "3. test output"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "jupyter": {
+     "outputs_hidden": false
+    },
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "w = np.array([[.1,.3,-.2],[-.4,.1,.2],[-.1,-.2,.4],[.2,.2,.2]])\n",
+    "W = np.array([[.5,.2],[-.3,-.3],[.2,.1],[.3,.3]])\n",
+    "inp = np.array([4,8,6])\n",
+    "targ = np.array([.65,.4])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "expected output array([0.5729277 , 0.54618944])\n",
+    "expected error 0.0023885891017721714"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "jupyter": {
+     "outputs_hidden": false
+    },
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "model.w = w\n",
+    "model.W = W"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "metadata": {
+    "jupyter": {
+     "outputs_hidden": false
+    },
+    "pycharm": {
+     "name": "#%% raw\n"
+    }
+   },
+   "source": [
+    "model.predict(inp)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "jupyter": {
+     "outputs_hidden": false
+    },
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.0023885891017721714"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "model.predict(inp,targ)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
+   "source": [
+    "## testing training methode on known informaiton\n",
+    "\n",
+    "using our established weights we would expect one pass of training with an alpha of .2 to be\n",
+    "``` python\n",
+    "\n",
+    "array([[ 0.10006569,  0.30081998, -0.1999963 ],\n",
+    "       [-0.39986862,  0.10163996,  0.2000074 ],\n",
+    "       [-0.09990147, -0.19877003,  0.40000555],\n",
+    "       [ 0.20022234,  0.20022234,  0.20022234]])\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "jupyter": {
+     "outputs_hidden": false
+    },
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "one pass\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "array([[ 0.10006569,  0.30081998, -0.1999963 ],\n",
+       "       [-0.39986862,  0.10163996,  0.2000074 ],\n",
+       "       [-0.09990147, -0.19877003,  0.40000555],\n",
+       "       [ 0.20022234,  0.20022234,  0.20022234]])"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "model.get_gradients(inp,targ)\n",
+    "model.w"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "one pass\n"
+     ]
+    }
+   ],
+   "source": [
+    "# running training method\n",
+    "model.train(inp,targ)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
+   "source": [
+    "## testing on multiple inputs at once"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "inp_many = np.tile(inp,3).reshape(3,-1)\n",
+    "targ_many = np.tile(targ,3).reshape(3,-1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[4 8 6] [0.65 0.4 ]\n",
+      "[4 8 6] [0.65 0.4 ]\n",
+      "[4 8 6] [0.65 0.4 ]\n"
+     ]
+    }
+   ],
+   "source": [
+    "for x, y in zip(inp_many, targ_many):\n",
+    "    print(x,y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "one pass\n",
+      "one pass\n",
+      "one pass\n"
+     ]
+    }
+   ],
+   "source": [
+    "for x,y in zip(inp_many,targ_many):\n",
+    "    model.train(x, y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "one pass\n",
+      "one pass\n",
+      "one pass\n",
+      "one epoch\n"
+     ]
+    }
+   ],
+   "source": [
+    "model.train(inp_many, targ_many)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "strange-dayton",
+   "metadata": {},
+   "source": [
+    "<span style=\"color:red\">**=======**</span>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## testing other activation functions\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### hyperbolic tangent"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hyberbolic_model = NeuralNetwork(3,3,2,activation='hyperbolic')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<function NeuralNetwork.act_hyperbolic at 0x000001FD89B6BA60>\n",
+      "<function NeuralNetwork.der_hyperbolic at 0x000001FD89B6B9D0>\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(hyberbolic_model.Actfunc)\n",
+    "print(hyberbolic_model.Der_Actfunc)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([-0.51699586,  0.19152282])"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "hyberbolic_model.predict(inp)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "one pass\n"
+     ]
+    }
+   ],
+   "source": [
+    "hyberbolic_model.train(inp,targ)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### relu"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<function NeuralNetwork.act_relu at 0x000001FD89B6B820>\n",
+      "<function NeuralNetwork.der_relu at 0x000001FD89B6B790>\n"
+     ]
+    }
+   ],
+   "source": [
+    "relu_model = NeuralNetwork(3,3,2,activation='relu')\n",
+    "print(relu_model.Actfunc)\n",
+    "print(relu_model.Der_Actfunc)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([0., 0.])"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "relu_model.predict(inp)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "TypeError",
+     "evalue": "train() got an unexpected keyword argument 'x'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[1;31mTypeError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[1;32m<ipython-input-19-bfee78e4d67f>\u001b[0m in \u001b[0;36m<module>\u001b[1;34m\u001b[0m\n\u001b[1;32m----> 1\u001b[1;33m \u001b[0mrelu_model\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mtrain\u001b[0m\u001b[1;33m(\u001b[0m\u001b[0mx\u001b[0m\u001b[1;33m=\u001b[0m\u001b[0minp\u001b[0m\u001b[1;33m,\u001b[0m\u001b[0my\u001b[0m\u001b[1;33m=\u001b[0m\u001b[0mtarg\u001b[0m\u001b[1;33m)\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[1;31mTypeError\u001b[0m: train() got an unexpected keyword argument 'x'"
+     ]
+    }
+   ],
+   "source": [
+    "relu_model.train(x=inp,y=targ)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "statewide-myrtle",
+   "metadata": {},
+   "source": [
+    "<span style=\"color:red\">**>>>>>>> remote**</span>"
+   ]
+  }
+ ],
+ "metadata": {
+  "celltoolbar": "Edit Metadata",
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  },
+  "toc-autonumbering": false,
+  "toc-showcode": false,
+  "toc-showmarkdowntxt": false,
+  "toc-showtags": false
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
